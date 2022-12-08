@@ -1,2 +1,2 @@
 # OMClass
-A SuperCollider class that produces an OpenMusic files.
+A SuperCollider class that produces OpenMusic files.
