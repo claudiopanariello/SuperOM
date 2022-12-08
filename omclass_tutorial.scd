@@ -96,12 +96,12 @@ o.writeOMfile("example3.omi", pitches, rhythmTree: rhythm, metronome: metronomes
 
 
 
-// 5 staves with random frequencies taken from an harmonic series (and translated into midicentes with the .cpsmidicents method), random magnitudes and random rhythms quantized to 0.1
+// 5 staves with random frequencies taken from an harmonic series (and translated into midicentes with the .cpsmidicents method), random magnitudes and random rhythms quantized to 0 1/32.
 (
 var notes = 200, staves = 5;
 var pitches = {{Array.fill(24, {|i|(i+1*rrand(50, 51))}).choose}.dup(notes)}.dup(staves).cpsmidicents;
 var mags = {{rrand(-18, -3)}.dup(notes)}.dup(staves);
-var rhythm = {{rrand(0.1, 1).round(0.1)}.dup(notes)}.dup(staves);
+var rhythm = {{rrand(0.1, 1).softRound(1/32, 0, 1)}.dup(notes)}.dup(staves);
 
 o = OMClass.new;
 o.writeOMfile("example4.omi", pitches, mags, rhythm, 84, 25, -36, true);
@@ -120,8 +120,8 @@ var rhythm2 = [1/2, -1/6, 0, 0, 2/6, -2/5, 3/5, 1/6, -1/6, 0, 0, 1/6, 1/4];
 var pitches3 = [5500, [5600, 5950], 5700, 6050];
 var rhythm3 = [-1/8, 1/8, 1/8, 1/8];
 
-pitches2.size.do({pitches1=pitches1++0});
-pitches2.size.do({pitches3=pitches3++0});
+pitches2.do({pitches1=pitches1++0});
+pitches2.do({pitches3=pitches3++0});
 
 o = OMClass.new;
 o.writeOMfile("example5.omi", [pitches1, pitches2, pitches3], rhythmTree: [rhythm1, rhythm2, rhythm3], metronome: 144);
