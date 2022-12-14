@@ -23,7 +23,7 @@ Eventually, the .omi file can be manipulated by OM users. Moreover, this workflo
 The main method of OMClass is .writeOMfile, which takes the following arguments:
                      - file name output with .omi extension. The output will be produced in the same folder where the SC file is.
                      - array of midicents notes. Chords can be specified with additional brackets, e.g. [n, n, [n, n], n, ...]. The midicents array can also be an array of array [[][][]...]. In this case the rows are interpreted as subsequent separated staves.
-                     - array of magnitudes. This can be expressed in decibels, the OMClass will take care of interpreting the given array in the correct way. This must match the size of the midicents array. If no magnitudes are given, then all the notes are automatically set to velocity = 100.
+                     - array of velocities, i.e. values 0-127. This can be expressed in decibels, the OMClass will take care of interpreting the given array in the correct way. This must match the size of the midicents array. If no magnitudes are given, then all the notes are automatically set to velocity = 100.
                      - array of rhythms, given as floats (or fractions). This follows the same OM criterion to specify rhythms, that is a positive value represents the duration of the note, and a negative values represents a pause. If this argument is "nil", then the magnitudes array is used as a source for a rhythm tree (see more details below).
                      - metronome. If only one value is given, the metronome will be the same for all the staves. In alternative, an array of metronomes can be specified, matching the rows size  of the midicents' array. Default valus is 60.
                      - quantization of the notes (expressed in MIDICENTS). Default value is 50 (i.e. quarter-tone).
@@ -80,8 +80,6 @@ var rhythm = {1/16}.dup(pitches.size);
 o = OMClass.new;
 o.writeOMfile("example2.omi", pitches, magnitudes: mags, rhythmTree: rhythm, metronome:144, dynamics:true);
 )
-
-
 
 // 5 staves with different chromatic scales, rhythms with pauses chosen by a given set, 5 different metronomes
 (
@@ -154,6 +152,22 @@ var rhythm = {1/6}.dup(18);
 
 o = OMClass.new;
 o.writeOMfile("example7.omi", [pitches], rhythmTree: rhythm, metronome: 144);
+)
+
+
+
+// This example shows how midicents and magnitudes work together to create a final score.
+// This can be handy when you want to create a score from a series of frequencies and magnitudes coming from spectral analysis.
+// The general strategy is that subsequent notes have same freq and magnitude are grouped.
+// If they have different mags, instead, they are left as they are.
+// Finally, the mags below the threshold are interpreted as silence, i.e. the notes relative to those silences are transformed into pauses.
+(
+var freqs = {rrand(400, 500)}.dup(50).cpsmidicents;
+var mags = {[-18, -12, -9, -6].choose}.dup(freqs.size);
+freqs.postln;
+mags.postln;
+o = OMClass.new;
+o.writeOMfile("example8.omi", freqs, magnitudes: mags, rhythmTree: nil, metronome:144, quantization: 100, threshold: -12, dynamics:true);
 )
 
 //EOF
