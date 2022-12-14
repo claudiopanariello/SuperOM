@@ -96,7 +96,7 @@ o.writeOMfile("example3.omi", pitches, rhythmTree: rhythm, metronome: metronomes
 
 
 
-// 5 staves with random frequencies taken from an harmonic series (and translated into midicentes with the .cpsmidicents method), random magnitudes and random rhythms quantized to 0 1/32.
+// 5 staves with random frequencies taken from an harmonic series (and translated into midicentes with the .cpsmidicents method), random magnitudes and random rhythms quantized to 1/32.
 (
 var notes = 200, staves = 5;
 var pitches = {{Array.fill(24, {|i|(i+1*rrand(50, 51))}).choose}.dup(notes)}.dup(staves).cpsmidicents;
@@ -108,8 +108,8 @@ o.writeOMfile("example4.omi", pitches, mags, rhythm, 84, 25, -36, true);
 )
 
 
-// One current limitation is about combining midicents staves with differents lengths: as a matter of fact, they should all have the same dimension, in order to create a final rectangular matrix.
-// One workaround is to fill the shorter arrays with zeros (a sort of zero padding), thus mathing the size of the longest array: these additional 0 pitches will be ignored as long as the rhythm tree doesn't contain a rhythm information for them.
+// One current limitation is about combining midicents staves that have different lengths: as a matter of fact, midicents arrays should all have the same length, in order to create a final rectangular matrix.
+// One workaround is to fill the shorter arrays with zeros (a sort of zero padding), thus matching the size of the longest array: these additional 0 pitches will be ignored as long as the rhythm tree doesn't contain a rhythm information for them.
 (
 var pitches1 = [7200, 7400, 7500, 7600];
 var rhythm1 = [1/6, -2/6, 1/4, 1/4, 1/4];
@@ -143,6 +143,17 @@ pitches2.size.do({pitches1=pitches1++0});
 
 o = OMClass.new;
 o.writeOMfile("example6.omi", [pitches1, pitches2], rhythmTree: [rhythm1, rhythm2], metronome: 144);
+)
+
+
+
+// Another potential limitation for the moment is how a midicent array is presented: when it starts with chords, in order to get properly recognized by the class, it need some extra brackets.
+(
+var pitches = {|i|200*i+[5500, 5900, 6200]}.dup(18);
+var rhythm = {1/6}.dup(18);
+
+o = OMClass.new;
+o.writeOMfile("example7.omi", [pitches], rhythmTree: rhythm, metronome: 144);
 )
 
 //EOF
