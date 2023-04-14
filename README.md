@@ -1,4 +1,4 @@
-# OMClass
+# SuperOM
 A SuperCollider class that produces OpenMusic files.
 
 
@@ -6,7 +6,7 @@ A SuperCollider class that produces OpenMusic files.
 
 Open up SuperCollider and evaluate the following line of code:
 ```supercollider
-Quarks.install("https://github.com/claudiopanariello/OMClass")
+Quarks.install("https://github.com/claudiopanariello/SuperOM")
 ```
 
 ## More
