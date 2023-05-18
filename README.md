@@ -1,4 +1,4 @@
-![superom_logo](SUPEROMM.jpg =x250)
+![superom_logo](SUPEROMM.jpg)
 
 # SuperOM
 A SuperCollider class that produces OpenMusic files.
