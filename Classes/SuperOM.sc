@@ -58,7 +58,7 @@ SuperOM {
 	}
 
 	makeInstanceChord {
-		arg midicent = 6000, channel = 1, velocity = 100;
+		arg midicent = 6000, channel = 1, velocity = 69;
 		var template = "
 (make-instance 'chord :lmidic '(MIDICENT) :lchan '(CHAN) :lvel '(VEL))".replace("MIDICENT", if(midicent.shape.isNil,{midicent},{midicent.arrayToCleanString})) //if midicent isn't an array, I use it as it is; otherwise I clean it and print it allprint it all
 		.replace("CHAN", channel)
@@ -67,7 +67,7 @@ SuperOM {
 	}
 
 	makeInstanceVelExtra {
-		arg dynamic = "f", midicent = 6000, channel = 1, velocity = 100;
+		arg dynamic = "f", midicent = 6000, channel = 1, velocity = 69;
 		var template = "
 (add-extra INSTANCECHORD
 (make-instance 'vel-extra :deltax DELTAX :deltay DELTAY :dynamics :DYNAMIC)
@@ -93,7 +93,7 @@ nil t)
 
 	// Taking the magnitudes array and try to make a RhythmTree
 	makeRhythmTree {
-		arg midicents = [], magnitudes = [], threshold = -36;
+		arg midicents = [], magnitudes = [], threshold = -36, range = 0.1;
 		var index = 0;
 		var aux = Array.fill(magnitudes.size, 0);
 		var result = "";
@@ -109,10 +109,10 @@ nil t)
 			if(v<threshold, {aux[i]=273.15.neg}, {aux[i] = md[index]; index = index+1;});
 		});
 
-		d = aux.groupOccurences;
+		d = aux.groupOccurences(threshold, range);
 		// and finally transforming this last array into the correct writing for the rhythm tree
 		d.do({|v, i|
-			result = result++"NUM/8 ".replace("NUM", v);
+			result = result++"NUM/16 ".replace("NUM", v);
 		});
 		^result;
 	}
@@ -128,14 +128,11 @@ nil t)
 
 	// writing  full OM file: takes the path, the midicents array, the  magnitudes array,a threshold, and a microtone quantization in midicents
 	writeOMfile {
-		arg fileName, midicents = [], magnitudes = [], rhythmTree = nil, metronome = 60, quantization = 50, threshold = -36, dynamics = false;
+		arg fileName, midicents = [], magnitudes = [], rhythmTree = nil, metronome = 60, quantization = 50, threshold = -36, dynamics = false, magRange = 0.1;
 		var outPath, outFile, midicentsTree, rhythmTreeFrac;
 		var channels = Array.fill(midicents.size, 1);
-		//outPath = PathName.new(path);
-		//this.traverse(this);
-		//outFile = File.new(outPath.standardizePath, "w");
-		outFile = File.new(thisProcess.nowExecutingPath.dirname +/+ fileName, "w");
 
+		outFile = File.new(thisProcess.nowExecutingPath.dirname +/+ fileName, "w");
 		outFile.write(this.header);
 		outFile.write(this.openPOLY);
 
@@ -145,7 +142,7 @@ nil t)
 
 		//if the magnitudes are nil, I create another array with all same velocities
 		if(magnitudes[0][0].isNil,
-			{ magnitudes = {{100}.dup(midicents.shape[1])}.dup(midicents.shape[0]); }
+			{ magnitudes = {{69}.dup(midicents.shape[1])}.dup(midicents.shape[0]); }
 		);
 
 		//Checking if the metronome is a sigle value or an array.
@@ -156,7 +153,7 @@ nil t)
 		midicents.numRows.do({|n|
 			// if there isn't rhythmTree I calculate one from the magnitudes, otherwise I just take the given rhythmTree
 			if(rhythmTree==nil,
-				{outFile.write(this.makeInstanceVoice(this.makeRhythmTree(midicents[n].round(quantization), magnitudes[n], threshold), metronome[n]));},
+				{outFile.write(this.makeInstanceVoice(this.makeRhythmTree(midicents[n].round(quantization), magnitudes[n], threshold, magRange), metronome[n]));},
 				{
 					rhythmTreeFrac = rhythmTree.fixShape.toFractionString; //here IMPORTANT transition from floats to fraction string
 					//outFile.write(this.makeInstanceVoice((this.arrayToCleanString(rhythmTreeFrac[n])), metronome));
@@ -172,13 +169,15 @@ nil t)
 							magnitudes[n][i].dbvelSmart.veldyn,
 							v,
 							channels[i],
-							magnitudes[n][i].dbvelSmart
+							69
+							//magnitudes[n][i].dbvelSmart
 					)},
 					{
 						this.makeInstanceChord(
 							v,
 							channels[i],
-							magnitudes[n][i].dbvelSmart
+							69
+							//magnitudes[n][i].dbvelSmart
 				);}))
 			});
 			outFile.write(this.closeVOICE);
