@@ -28,7 +28,7 @@ Extending functionality with some method required for the SuperOM class.
 
 
 + Array {
-	// To "clean" a given array, for example ["1/4","-1/4",-1/2"] must becomes: "1/4" "-1/4" "-1/2"
+	// To "clean" a given array, for example ["1/4","-1/4","-1/2"] becomes: "1/4 -1/4 -1/2"
 	arrayToCleanString {
 		arg rhythmTree = this;
 		var result = "";
