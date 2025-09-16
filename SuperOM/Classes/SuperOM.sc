@@ -1,11 +1,29 @@
-// Class and methods to write OM files from SuperCollider
-// Claudio Panariello
-// cla.panariello@gmail.com
-//
-//
-// Started on 12 June 2022
+/**********************************************************************
+ ▗▄▄▖▗▖ ▗▖▗▄▄▖ ▗▄▄▄▖▗▄▄▖  ▗▄▖ ▗▖  ▗▖
+▐▌   ▐▌ ▐▌▐▌ ▐▌▐▌   ▐▌ ▐▌▐▌ ▐▌▐▛▚▞▜▌
+▝▀ ▚▖▐▌ ▐▌▐▛▀▘ ▐▛▀▀▘▐▛▀▚▖▐▌ ▐▌▐▌  ▐▌
+▗▄▄▞▘▝▚▄▞▘▐▌   ▐▙▄▄▖▐▌ ▐▌▝▚▄▞▘▐▌  ▐▌
+
+a SuperCollider class that produces an OpenMusic file in output, thus bridging the two softwares.
+OpenMusic is a computer-assisted composition software designed at IRCAM. It can be downloaded for free from https://openmusic-project.github.io/openmusic/
+
+IMPORTANT: don't forget to have also the SupeOMadditionalMethods.sc file in your SuperOM class folder.
+
+	Class started on 2022-06-12
+    This document created on 2025-09-16
+	Copyright (c) 2022-2025 Claudio Panariello
+	Email: 	cla.panariello@gmail.com
+	URL:	https://claudiopanariello.com/
+
+**********************************************************************/
 
 SuperOM {
+
+	var <>superOMfile;
+
+	*new { |superOMfile = "superOMoutput.omi"|
+		^super.newCopyArgs(superOMfile);
+	}
 
 	// Header of the OM file
 	header {
@@ -116,6 +134,7 @@ nil t)
 		});
 		^result;
 	}
+
 	/*
 	// In order to clean the given array, for example ["1/4","-1/4",-1/2"] must becomes: "1/4" "-1/4" "-1/2"
 	arrayToCleanString {
@@ -132,7 +151,11 @@ nil t)
 		var outPath, outFile, midicentsTree, rhythmTreeFrac;
 		var channels = Array.fill(midicents.size, 1);
 
-		outFile = File.new(thisProcess.nowExecutingPath.dirname +/+ fileName, "w");
+		if(thisProcess.nowExecutingPath.isNil,
+			{outPath = Platform.userHomeDir+/+"Desktop"+/+fileName},
+			{outPath = thisProcess.nowExecutingPath.dirname+/+fileName}
+		);
+		outFile = File.new(outPath, "w");
 		outFile.write(this.header);
 		outFile.write(this.openPOLY);
 
@@ -161,7 +184,7 @@ nil t)
 
 			});
 
-			midicentsTree = this.deleteSilence(midicents[n].round(quantization), magnitudes[n], threshold).groupItems; //This method would group similar items, basically preventing ribattutos
+			midicentsTree = this.deleteSilence(midicents[n].round(quantization), magnitudes[n], threshold); //.groupItems; //This method would group similar items, basically preventing ribattutos
 			midicentsTree.do({|v, i|
 				outFile.write(
 					if(dynamics, {
@@ -185,6 +208,7 @@ nil t)
 
 		outFile.write(this.closePOLY);
 		outFile.close;
+		("File written at %".format(outPath)).postln;
 	}
 
 }

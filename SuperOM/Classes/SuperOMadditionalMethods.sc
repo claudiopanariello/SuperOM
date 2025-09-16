@@ -1,12 +1,24 @@
-// Claudio Panariello
-// cla.panariello@gmail.com
+/**********************************************************************
+ ▗▄▄▖▗▖ ▗▖▗▄▄▖ ▗▄▄▄▖▗▄▄▖  ▗▄▖ ▗▖  ▗▖
+▐▌   ▐▌ ▐▌▐▌ ▐▌▐▌   ▐▌ ▐▌▐▌ ▐▌▐▛▚▞▜▌	   ▌ ▌▘▗ ▘      ▜        ▗ ▌    ▌
+▝▀ ▚▖▐▌ ▐▌▐▛▀▘ ▐▛▀▀▘▐▛▀▚▖▐▌ ▐▌▐▌  ▐▌	▀▌▛▌▛▌▌▜▘▌▛▌▛▌▀▌▐   ▛▛▌█▌▜▘▛▌▛▌▛▌▛▘
+▗▄▄▞▘▝▚▄▞▘▐▌   ▐▙▄▄▖▐▌ ▐▌▝▚▄▞▘▐▌  ▐▌	█▌▙▌▙▌▌▐▖▌▙▌▌▌█▌▐▖  ▌▌▌▙▖▐▖▌▌▙▌▙▌▄▌
 
-//Extending functionality with some method required for the OMClass
+Extending functionality with some method required for the SuperOM class.
+
+	Class started on 2022-06-12
+    This document created on 2025-09-16
+	Copyright (c) 2022-2025 Claudio Panariello
+	Email: 	cla.panariello@gmail.com
+	URL:	https://claudiopanariello.com/
+
+**********************************************************************/
 
 + SequenceableCollection {
 	toFractionString { ^this.performUnaryOp('toFractionString') }
 	timelineToRhythm { ^this.performUnaryOp('timelineToRhythm') }
 	cpsmidicents { ^this.performUnaryOp('cpsmidicents') }
+	midicentsratio { ^this.performUnaryOp('midicentsratio') }
 	arrayToCleanString { ^this.performUnaryOp('arrayToCleanString') }
 	dbvel { ^this.performUnaryOp('dbvel') }
 	dbvelSmart { ^this.performUnaryOp('dbvelSmart') }
@@ -181,6 +193,14 @@
 		^midicents;
 	}
 
+	//midicents to ratio conversion (useful for playback rate)
+	midicentsratio {
+		var midi, ratio;
+		midi = this/100;
+		ratio = 2.pow(midi/12);
+		^ratio;
+	}
+
 	/*
 	Vel| Dyn.|   dB |rev.dB|   % |
 	+----+-----+------+------+-----+
@@ -249,21 +269,46 @@
 	}
 
 	//midi velocity to music dynamics
+	/*
+	veldyn {
+	var db, velocity;
+	velocity = this;
+	db = case
+	{ velocity >= 127 } { "fff" }
+	{ (velocity>=112)&&(velocity<127) } { "ff" }
+	{ (velocity>=96)&&(velocity<112) } { "f" }
+	{ (velocity>=80)&&(velocity<96) } { "mf" }
+	{ (velocity>=64)&&(velocity<80) } { "mp" }
+	{ (velocity>=48)&&(velocity<64) } { "p" }
+	{ (velocity>=32)&&(velocity<48) } { "pp" }
+	{ (velocity>=16)&&(velocity<32) } { "ppp" }
+	{ velocity < 16} { "ppppp" };
+	^db;
+	}
+	*/
+
+	//midi velocity to music dynamics based on LilyPond
 	veldyn {
 		var db, velocity;
 		velocity = this;
 		db = case
-		{ velocity >= 127 } { "fff" }
-		{ (velocity>=112)&&(velocity<127) } { "ff" }
-		{ (velocity>=96)&&(velocity<112) } { "f" }
-		{ (velocity>=80)&&(velocity<96) } { "mf" }
-		{ (velocity>=64)&&(velocity<80) } { "mp" }
-		{ (velocity>=48)&&(velocity<64) } { "p" }
-		{ (velocity>=32)&&(velocity<48) } { "pp" }
-		{ (velocity>=16)&&(velocity<32) } { "ppp" }
-		{ velocity < 16} { "ppppp" };
+		{ velocity >= 127 } { "sf" }
+		{ (velocity>=120)&&(velocity<127) } { "fffff" }
+		{ (velocity>=116)&&(velocity<120) } { "ffff" }
+		{ (velocity>=107)&&(velocity<116) } { "fff" }
+		{ (velocity>=101)&&(velocity<107) } { "ff" }
+		{ (velocity>=95)&&(velocity<101) } { "f" }
+		{ (velocity>=86)&&(velocity<95) } { "mf" }
+		{ (velocity>=77)&&(velocity<86) } { "mp" }
+		{ (velocity>=69)&&(velocity<77) } { "p" }
+		{ (velocity>=62)&&(velocity<69) } { "pp" }
+		{ (velocity>=53)&&(velocity<62) } { "ppp" }
+		{ (velocity>=43)&&(velocity<53) } { "pppp" }
+		{ (velocity>=31)&&(velocity<53) } { "ppppp" }
+		{ velocity < 31} { "pppppp" };
 		^db;
 	}
+
 }
 
 //EOF
