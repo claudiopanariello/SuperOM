@@ -64,14 +64,21 @@ SuperOM {
 	// create an Instance with
 
 	makeInstanceVoice {
-		arg rhythmTree = "1/4", metronome = 60;
+		arg rhythmTree = "1/4", timeSignatures = nil, metronome = 60;
 		var template = "
 (make-instance 'voice
-:tree (mktree '(TREE) '(4 4))
+:tree (mktree '(TREE) '(TIMESIGNATURE))
 :tempo METRONOME
 :chords
 (list
 ".replace("TREE", rhythmTree).replace("METRONOME", metronome);
+		timeSignatures.postln;
+		if(timeSignatures.isNil, {
+			template.replace("TIMESIGNATURE", "4 4");
+		},
+		{
+			template.replace("TIMESIGNATURE", timeSignatures.arrayToTimeSig);
+		});
 		^template;
 	}
 
@@ -147,12 +154,12 @@ nil t)
 
 	// writing  full OM file: takes the path, the midicents array, the  magnitudes array,a threshold, and a microtone quantization in midicents
 	writeOMfile {
-		arg fileName, midicents = [], magnitudes = [], rhythmTree = nil, metronome = 60, quantization = 50, threshold = -36, dynamics = false, magRange = 0.1;
+		arg fileName, midicents = [], magnitudes = [], rhythmTree = nil, timeSignatures = [], metronome = 60, quantization = 50, threshold = -36, dynamics = false, magRange = 0.1;
 		var outPath, outFile, midicentsTree, rhythmTreeFrac;
 		var channels = Array.fill(midicents.size, 1);
 
 		if(thisProcess.nowExecutingPath.isNil,
-			{outPath = Platform.userHomeDir+/+"Desktop"+/+fileName},
+			{outPath = Platform.userHomeDir+/+"Desktop"+/+"superOm_"++Date.getDate.stamp},
 			{outPath = thisProcess.nowExecutingPath.dirname+/+fileName}
 		);
 		outFile = File.new(outPath, "w");
@@ -176,11 +183,11 @@ nil t)
 		midicents.numRows.do({|n|
 			// if there isn't rhythmTree I calculate one from the magnitudes, otherwise I just take the given rhythmTree
 			if(rhythmTree==nil,
-				{outFile.write(this.makeInstanceVoice(this.makeRhythmTree(midicents[n].round(quantization), magnitudes[n], threshold, magRange), metronome[n]));},
+				{outFile.write(this.makeInstanceVoice(this.makeRhythmTree(midicents[n].round(quantization), magnitudes[n], threshold, magRange),timeSignatures[n], metronome[n]));},
 				{
 					rhythmTreeFrac = rhythmTree.fixShape.toFractionString; //here IMPORTANT transition from floats to fraction string
 					//outFile.write(this.makeInstanceVoice((this.arrayToCleanString(rhythmTreeFrac[n])), metronome));
-					outFile.write(this.makeInstanceVoice(((rhythmTreeFrac[n])).arrayToCleanString, metronome[n]));
+					outFile.write(this.makeInstanceVoice(((rhythmTreeFrac[n])).arrayToCleanString, timeSignatures[n], metronome[n]));
 
 			});
 
