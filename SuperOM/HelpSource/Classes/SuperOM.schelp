@@ -30,7 +30,7 @@ METHOD:: writeOMfile
 This is the main method of SuperOM, which allows to generate .omi files.
 
 ARGUMENT:: fileName
-Filename output with .omi extension. The output will be produced in the same folder where the current SuperCollider file is.
+Filename output with .omi extension. The output will be produced in the same folder where the current SuperCollider file is, or on the Desktop.
 
 ARGUMENT:: midicents
 Array of MIDICENTS notes. Chords can be specified with additional brackets, e.g. [n, n, [n, n], n, ...]. The midicents array can also be an array of array [[][][]...]. In this case the rows are interpreted as subsequent separated staves.
@@ -40,6 +40,9 @@ Array of velocities, i.e. values 0-127. This can be expressed in decibels, the S
 
 ARGUMENT:: rhythmTree
 Array of rhythms, given as floats (or fractions). This follows the same OpenMusic criterion to specify rhythms, that is a positive value represents the duration of the note, and a negative value represents the duration of a pause. A rest, however, can be also specified using SuperCollider's operand Rest(). If this argument is "nil", then the magnitudes array is used as a source for a rhythm tree (see the examples below).
+
+ARGUMENT:: timeSignatures
+Array of time signatures, given as couples of numbers e.g. ["4 4", "3 4", "6 8"]. If no time signatures are given, it assigns the default "4 4".
 
 ARGUMENT:: metronome
 Metronome given as bpm. If only one value is given, the metronome will be the same for all the staves. In alternative, an array of metronomes can be specified, matching the rows size  of the midicents' array. Default valus is 60.
@@ -124,6 +127,9 @@ METHOD:: makeInstanceVoice
 (describe method here)
 
 ARGUMENT:: rhythmTree
+(describe argument here)
+
+ARGUMENT:: timeSignatures
 (describe argument here)
 
 ARGUMENT:: metronome
@@ -328,6 +334,7 @@ o.writeOMfile("example8.omi", [pitches], rhythmTree: rhythm, metronome: 144);
 
 // Another potential limitation is about combining midicents staves that have different lengths: as a matter of fact, midicents arrays should all have the same length, in order to create a final rectangular matrix.
 // One workaround is to fill the shorter arrays with zeros (a sort of zero padding), thus matching the size of the longest array: these additional 0 pitches will be ignored as long as the rhythm tree doesn't contain a rhythm information for them.
+// However, this step seems to be unnecessary with OM >= 7.6
 (
 var pitches1 = [7200, 7400, 7500, 7600];
 var rhythm1 = [1/6, -2/6, 1/4, 1/4, 1/4];
