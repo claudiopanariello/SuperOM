@@ -1,16 +1,16 @@
 /**********************************************************************
- ▗▄▄▖▗▖ ▗▖▗▄▄▖ ▗▄▄▄▖▗▄▄▖  ▗▄▖ ▗▖  ▗▖
+▗▄▄▖▗▖ ▗▖▗▄▄▖ ▗▄▄▄▖▗▄▄▖  ▗▄▖ ▗▖  ▗▖
 ▐▌   ▐▌ ▐▌▐▌ ▐▌▐▌   ▐▌ ▐▌▐▌ ▐▌▐▛▚▞▜▌	   ▌ ▌▘▗ ▘      ▜        ▗ ▌    ▌
 ▝▀ ▚▖▐▌ ▐▌▐▛▀▘ ▐▛▀▀▘▐▛▀▚▖▐▌ ▐▌▐▌  ▐▌	▀▌▛▌▛▌▌▜▘▌▛▌▛▌▀▌▐   ▛▛▌█▌▜▘▛▌▛▌▛▌▛▘
 ▗▄▄▞▘▝▚▄▞▘▐▌   ▐▙▄▄▖▐▌ ▐▌▝▚▄▞▘▐▌  ▐▌	█▌▙▌▙▌▌▐▖▌▙▌▌▌█▌▐▖  ▌▌▌▙▖▐▖▌▌▙▌▙▌▄▌
 
 Extending functionality with some method required for the SuperOM class.
 
-	Class started on 2022-06-12
-    This document created on 2025-09-16
-	Copyright (c) 2022-2025 Claudio Panariello
-	Email: 	cla.panariello@gmail.com
-	URL:	https://claudiopanariello.com/
+Class started on 2022-06-12
+This document created on 2025-09-16
+Copyright (c) 2022-2025 Claudio Panariello
+Email: 	cla.panariello@gmail.com
+URL:	https://claudiopanariello.com/
 
 **********************************************************************/
 
@@ -20,6 +20,7 @@ Extending functionality with some method required for the SuperOM class.
 	cpsmidicents { ^this.performUnaryOp('cpsmidicents') }
 	midicentsratio { ^this.performUnaryOp('midicentsratio') }
 	arrayToCleanString { ^this.performUnaryOp('arrayToCleanString') }
+	arrayToTimeSig { ^this.performUnaryOp('arrayToTimeSig') }
 	dbvel { ^this.performUnaryOp('dbvel') }
 	dbvelSmart { ^this.performUnaryOp('dbvelSmart') }
 	veldb { ^this.performUnaryOp('veldb') }
@@ -33,6 +34,13 @@ Extending functionality with some method required for the SuperOM class.
 		arg rhythmTree = this;
 		var result = "";
 		rhythmTree.do({|v, i| result = result++v++" "; });
+		^result;
+	}
+
+	// Useful for time signatures: this ["4 4","4 4","5 8"] becomes: "(4 4) (4 4) (5 8)"
+	arrayToTimeSig {
+		var result = "";
+		this.do({|v, i| result = result++"(%) ".format(v); });
 		^result;
 	}
 

@@ -10,7 +10,7 @@ OpenMusic is a computer-assisted composition software designed at IRCAM. It can 
 IMPORTANT: don't forget to have also the SupeOMadditionalMethods.sc file in your SuperOM class folder.
 
 	Class started on 2022-06-12
-    This document created on 2025-09-16
+    This document created on 2025-09-22
 	Copyright (c) 2022-2025 Claudio Panariello
 	Email: 	cla.panariello@gmail.com
 	URL:	https://claudiopanariello.com/
@@ -24,6 +24,7 @@ SuperOM {
 	*new { |superOMfile = "superOMoutput.omi"|
 		^super.newCopyArgs(superOMfile);
 	}
+
 
 	// Header of the OM file
 	header {
@@ -72,12 +73,11 @@ SuperOM {
 :chords
 (list
 ".replace("TREE", rhythmTree).replace("METRONOME", metronome);
-		timeSignatures.postln;
 		if(timeSignatures.isNil, {
-			template.replace("TIMESIGNATURE", "4 4");
+			template = template.replace("TIMESIGNATURE", "4 4");
 		},
 		{
-			template.replace("TIMESIGNATURE", timeSignatures.arrayToTimeSig);
+			template = template.replace("TIMESIGNATURE", timeSignatures.arrayToTimeSig);
 		});
 		^template;
 	}
@@ -142,15 +142,16 @@ nil t)
 		^result;
 	}
 
-	/*
-	// In order to clean the given array, for example ["1/4","-1/4",-1/2"] must becomes: "1/4" "-1/4" "-1/2"
-	arrayToCleanString {
-	arg rhythmTree = "1/4";
-	var result = "";
-	rhythmTree.do({|v, i| result = result++v++" "; });
-	^result;
+		// Validate that pitches and rhythm arrays are compatible
+	validateInput { |pitches, rhythm|
+		var positiveRhythmCount = rhythm.count { |dur| dur > 0 };
+
+		if (pitches.size != positiveRhythmCount, {
+			Error("Input validation failed: pitches array size (%) does not match positive rhythm count (%)".format(
+				pitches.size, positiveRhythmCount
+			)).throw;
+		});
 	}
-	*/
 
 	// writing  full OM file: takes the path, the midicents array, the  magnitudes array,a threshold, and a microtone quantization in midicents
 	writeOMfile {
@@ -159,7 +160,10 @@ nil t)
 		var channels = Array.fill(midicents.size, 1);
 
 		if(thisProcess.nowExecutingPath.isNil,
-			{outPath = Platform.userHomeDir+/+"Desktop"+/+"superOm_"++Date.getDate.stamp},
+			{
+				if(fileName.isNil,
+					{outPath = Platform.userHomeDir+/+"Desktop"+/+"superOM_"++Date.getDate.stamp++".omi"},
+					{outPath = Platform.userHomeDir+/+"Desktop"+/+fileName})},
 			{outPath = thisProcess.nowExecutingPath.dirname+/+fileName}
 		);
 		outFile = File.new(outPath, "w");
@@ -183,15 +187,18 @@ nil t)
 		midicents.numRows.do({|n|
 			// if there isn't rhythmTree I calculate one from the magnitudes, otherwise I just take the given rhythmTree
 			if(rhythmTree==nil,
-				{outFile.write(this.makeInstanceVoice(this.makeRhythmTree(midicents[n].round(quantization), magnitudes[n], threshold, magRange),timeSignatures[n], metronome[n]));},
+				{outFile.write(this.makeInstanceVoice(this.makeRhythmTree(midicents[n].round(quantization), magnitudes[n], threshold, magRange), timeSignatures[n], metronome[n]));},
 				{
+					// Validate input compatibility
+					this.validateInput(midicents[n], rhythmTree.fixShape[n]);
+
 					rhythmTreeFrac = rhythmTree.fixShape.toFractionString; //here IMPORTANT transition from floats to fraction string
 					//outFile.write(this.makeInstanceVoice((this.arrayToCleanString(rhythmTreeFrac[n])), metronome));
 					outFile.write(this.makeInstanceVoice(((rhythmTreeFrac[n])).arrayToCleanString, timeSignatures[n], metronome[n]));
 
 			});
 
-			midicentsTree = this.deleteSilence(midicents[n].round(quantization), magnitudes[n], threshold); //.groupItems; //This method would group similar items, basically preventing ribattutos
+			midicentsTree = this.deleteSilence(midicents[n].round(quantization), magnitudes[n], threshold); //.groupItems; //This method would group similar items, basically preventing ribattutos. Only useful when estimating the rhythm from the magnitudes
 			midicentsTree.do({|v, i|
 				outFile.write(
 					if(dynamics, {
